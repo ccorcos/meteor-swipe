@@ -173,7 +173,7 @@ class Swipe
     eventMap[touchend] = (e,t) ->
       if e.currentTarget is Swiper.element
         handler(e,t)
-    Template[template].events eventMap
+    Template[template]?.events eventMap
 
 
 Template.swipe.helpers
