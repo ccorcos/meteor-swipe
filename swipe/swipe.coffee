@@ -173,7 +173,11 @@ class Swipe
     eventMap[touchend] = (e,t) ->
       if e.currentTarget is Swiper.element
         handler(e,t)
-    Template[template]?.events eventMap
+    t = Template[template]
+    if t
+      t.events eventMap
+    else
+      console.log "WARNING: Template ;" + template + "' not found."
 
 
 Template.swipe.helpers
