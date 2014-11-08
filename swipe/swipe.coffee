@@ -286,8 +286,8 @@ Template.swipe.events
 
   'mouseout .pages': (e,t) ->
     if t.mouseDown
-      parentToChild = e.fromElement is e.toElement.parentNode
-      childToParent = _.contains(e.toElement.childNodes, e.fromElement)
+      parentToChild = e.fromElement is e.toElement?.parentNode
+      childToParent = _.contains(e.toElement?.childNodes, e.fromElement)
       if not (parentToChild or childToParent)
         posX = t.changeX + t.posX
         momentum = Math.abs(10*t.velX)
