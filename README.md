@@ -14,7 +14,7 @@ meteor add ccorcos:swipe
 
 Create some templates. And initialize a swiper with those template names.
 
-`Swiper = new Swipe(['page1', 'page2', 'page3', 'page4', 'page5'])``
+`Swiper = new Swipe(['page1', 'page2', 'page3', 'page4', 'page5'])`
 
 Insert the swiper somewhere and make sure to pass the swiper object.
 
