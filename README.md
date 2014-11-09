@@ -9,7 +9,7 @@ between pages. Checkout [this repo for some examples](https://github.com/ccorcos
 Add this package to your project:
 
 ```
-meteor add ccorcos:swipe1
+meteor add ccorcos:swipe
 ```
 
 Create some templates. And initialize a swiper with those template names.
