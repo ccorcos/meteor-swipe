@@ -17,6 +17,9 @@
   -ms-user-select: none;
   user-select: none;
 
+  /*initially hidden*/  
+  display: none;
+
 }
 
 .animate {
@@ -34,7 +37,7 @@
 }
 
 .no-swipe {
-  
+
 }
 
 .noselect {

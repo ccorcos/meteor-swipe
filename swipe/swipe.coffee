@@ -20,20 +20,30 @@ class Swipe
         if not e then e = window.event
         code = e.keyCode
         if code is 37
+          event.preventDefault()
           # let moveLeft handle the animations. This fixes the 3 page example.
           $(self.t?.findAll('.animate')).removeClass('animate')
           self.moveLeft()
         else if code is 39
+          event.preventDefault()
           # let moveLeft handle the animations. This fixes the 3 page example.
           $(self.t?.findAll('.animate')).removeClass('animate')
           self.moveRight()
         # else if code is 38 # up
         # else if code is 40 # down
-        event.preventDefault()
 
+
+  isReady: ->
+    # if calling setPage before swiper is bound to a template, we get an error.
+    # so this function is just a semantic wrapper for checking if the template
+    # exists yet.
+    return @t?
 
   setTemplate: (t) ->
     @t = t
+    # initially hide
+    # for name in @templateNames
+    #   $(@t.find('.page.'+name)).css 'display', 'none'
 
   getPage: () ->
     @state.get 'page'
@@ -131,6 +141,7 @@ class Swipe
         'translate3d(0px,0,0)'
       @setPage(@getRight())
 
+
   leftRight: (left, right) ->
     oldLeft = @getLeft()
     oldRight = @getRight()
@@ -177,7 +188,7 @@ class Swipe
     if t
       t.events eventMap
     else
-      console.log "WARNING: Template ;" + template + "' not found."
+      console.log "WARNING: Template '" + template + "' not found."
 
 
 Template.swipe.helpers
@@ -206,7 +217,8 @@ Template.swipe.rendered = ->
 
 Template.swipe.events
   'mousedown .pages': (e,t) ->
-    unless $(e.target).hasClass('no-swipe')
+
+    unless $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
       # remove stop all animations in this swiper
       $(t.findAll('.animate')).removeClass('animate')
       clickX = e.pageX
@@ -215,7 +227,7 @@ Template.swipe.events
       t.mouseDown = true # swipe has begun
 
   'touchstart .pages': (e,t) ->
-    unless $(e.target).hasClass('no-swipe')
+    unless $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
 
       # keep track of what element the pointer is over for touchend
       x = e.originalEvent.touches[0].pageX - window.pageXOffset

@@ -74,5 +74,6 @@ swipeControl Swiper, 'page1', '.next', (e,t) ->
 
 
 ## Known Issues
-- Bugs out when the mouse drags off screen. Please help!
+- Bugs out when the mouse drags off screen.
+- Resizing isnt always handles properly it seems.
 - [Keep session variables after reload](https://github.com/meteor/meteor/blob/d477c8d03bb078f7e8e85dbe4b51db7ae5689573/packages/session/session.js)
