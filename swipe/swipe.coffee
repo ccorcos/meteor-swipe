@@ -179,11 +179,13 @@ class Swipe
     mouseup = 'mouseup ' + selector
     touchend = 'touchend ' + selector
     eventMap = {}
+
     eventMap[mouseup] = (e,t) ->
-      handler(e,t)
+      handler.bind(@)(e,t)
     eventMap[touchend] = (e,t) ->
       if e.currentTarget is Swiper.element
-        handler(e,t)
+        handler.bind(@)(e,t)
+
     t = Template[template]
     if t
       t.events eventMap
