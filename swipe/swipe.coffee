@@ -52,13 +52,15 @@ class Swipe
     for n in _.difference(@templateNames, [n])
       $(@t.find('.page.'+n)).css 'display', 'none'
     @setPage(name)
+    $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
+      'translate3d(0px,0,0)'
 
   setPage: (name) ->
     @lastPage = @getPage()
     @state.set 'page', name
     # set position in the middle regardless of animation
-    $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
-      'translate3d(0px,0,0)'
+    # $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
+    #   'translate3d(0px,0,0)'
 
   pageIs: (name) ->
     @state.equals 'page', name
