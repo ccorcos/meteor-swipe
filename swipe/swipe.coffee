@@ -4,8 +4,8 @@ class Swipe
   constructor: (@templateNames, arrowKeys=true) ->
     @state = new Package['reactive-dict'].ReactiveDict()
     @state.set 'page', null
-    @state.set 'left', null
-    @state.set 'right', null
+    @left =  null
+    @right =  null
     @t = null # template
     @lastPage = null
 
@@ -59,10 +59,10 @@ class Swipe
     @state.equals 'page', name
 
   getLeft: () ->
-    @state.get 'left'
+    @left
 
   setLeft: (name) ->
-    @state.set 'left', name
+    @left =  name
     # set position in the left regardless of animation
     $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
       'translate3d(-'+@t.width+'px,0,0)'
@@ -71,10 +71,10 @@ class Swipe
     @state.equals 'left', name
 
   getRight: () ->
-    @state.get 'right'
+    @right
 
   setRight: (name) ->
-    @state.set 'right', name
+    @right =  name
     # set position in the middle regardless of animation
     $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
       'translate3d('+@t.width+'px,0,0)'
