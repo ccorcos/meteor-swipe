@@ -48,6 +48,11 @@ class Swipe
   getPage: () ->
     @state.get 'page'
 
+  setPageHard: (name) ->
+    for n in _.difference(@templateNames, [n])
+      $(@t.find('.page.'+n)).css 'display', 'none'
+    @setPage(name)
+
   setPage: (name) ->
     @lastPage = @getPage()
     @state.set 'page', name
@@ -154,6 +159,7 @@ class Swipe
     # dont hide the old center!
     for name in _.difference(@templateNames, [left, center, right, @lastPage])
       $(@t.find('.page.'+name)).css 'display', 'none'
+
 
   resize: ->
     $(@t.findAll('.animate')).removeClass('animate')
