@@ -6,7 +6,8 @@ between pages. Checkout [this repo for some examples](https://github.com/ccorcos
 ## To Do
 
 - mouseup when touching a swipe-control?
-
+- iron router page control not entirely working
+- animated transitions snap on the first one
 
 ## Getting Started
 
