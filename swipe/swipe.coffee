@@ -183,12 +183,9 @@ class Swipe
   #       Swiper.moveRight()
 
   shouldControl: ->
-    posX = @t.changeX + @t.posX
-    momentum = Math.abs(10*@t.velX)
-    momentum = Math.min(momentum, @t.width/2)
-    momentum = momentum*sign(@t.velX)
-    distance = posX + momentum
-    return Math.abs(distance) <= 20
+    speedX = 10*@t.velX
+    flickX = @t.changeX + speedX
+    return Math.abs(flickX) <= 30 or Math.abs(@t.changeX) <= 10
 
   swipeControl: (template, selector, handler) ->
     Swiper = @
@@ -201,6 +198,7 @@ class Swipe
         handler.bind(@)(e,t)
     eventMap[touchend] = (e,t) ->
       if e.currentTarget is Swiper.element and Swiper.shouldControl()
+        e.stopPropagation()
         handler.bind(@)(e,t)
 
     t = Template[template]
@@ -224,29 +222,46 @@ Template.swipe.rendered = ->
 
   @width = $(@find('.pages')).width()
 
-
-
-
-
   # keep track of scrolling
-  @startX = 0
   @mouseDown = false
+  @startX = 0
   @mouseX = 0
   @posX = 0
+  @startY = 0
+  @mouseY = 0
+  @posY = 0
 
 Template.swipe.events
   'mousedown .pages': (e,t) ->
 
-    unless $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
+    noSwipeCSS = $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
+
+    unless noSwipeCSS
       # remove stop all animations in this swiper
       $(t.findAll('.animate')).removeClass('animate')
       clickX = e.pageX
       t.startX = clickX # beginning of the swipe
       t.mouseX = clickX # current position of the swipe
       t.mouseDown = true # swipe has begun
+      t.toppedOutScroll = false
+
 
   'touchstart .pages': (e,t) ->
-    unless $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
+    t.toppedOutScroll = false
+
+
+    noSwipeCSS = $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
+    scrollableCSS = $(e.target).hasClass('scrollable') or $(e.target).parentsUntil('body', '.scrollable').length
+    if scrollableCSS
+      t.scrollable = true
+      t.mightBeScrolling = true
+      t.scrolling = false
+    else
+      t.scrollable = false
+      t.mightBeScrolling = false
+      t.scrolling = false
+
+    unless noSwipeCSS
 
       # keep track of what element the pointer is over for touchend
       x = e.originalEvent.touches[0].pageX - window.pageXOffset
@@ -256,9 +271,13 @@ Template.swipe.events
 
       # remove stop all animations in this swiper
       $(t.findAll('.animate')).removeClass('animate')
+      # keey track of Y for calculating scroll
       clickX = e.originalEvent.touches[0].pageX
+      clickY = e.originalEvent.touches[0].pageY
       t.startX = clickX # beginning of the swipe
       t.mouseX = clickX # current position of the swipe
+      t.startY = clickY # beginning of the swipe
+      t.mouseY = clickY # current position of the swipe
       t.mouseDown = true # swipe has begun
 
   'mousemove .pages': (e,t) ->
@@ -273,40 +292,145 @@ Template.swipe.events
       t.Swiper.drag(posX)
 
   'touchmove .pages': (e,t) ->
-    # need prevent default AND return false for touchend to work
-    e.preventDefault()
 
-    # keep track of what element the pointer is over for touchend
-    x = e.originalEvent.touches[0].pageX - window.pageXOffset
-    y = e.originalEvent.touches[0].pageY - window.pageYOffset
-    target = document.elementFromPoint(x, y)
-    t.Swiper.element = target
+    # if you mightBeScrolling
+    #   compare with dx and dy to set if scrolling
+    #   if not scrolling
+    #     prevent default and swipe
+    # else
+    #   if not scrolling
+    #     unless noSwipe
+    #     prevent default and swipe
 
-    if t.mouseDown
+    # if t.mouseDown
+
+    noSwipeCSS =  $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
+
+    # console.log(t.scrollable, t.mightBeScrolling, t.scrolling)
+
+
+    if t.mightBeScrolling
+
+      # keep track of what element the pointer is over for touchend
+      x = e.originalEvent.touches[0].pageX - window.pageXOffset
+      y = e.originalEvent.touches[0].pageY - window.pageYOffset
+      target = document.elementFromPoint(x, y)
+      t.Swiper.element = target
+
       newMouseX = e.originalEvent.touches[0].pageX
       oldMouseX = t.mouseX
       t.velX = newMouseX - oldMouseX
       t.changeX = newMouseX - t.startX
       posX = t.changeX + t.posX
       t.mouseX = newMouseX
-      t.Swiper.drag(posX)
-    return false
+
+      newMouseY = e.originalEvent.touches[0].pageY
+      oldMouseY = t.mouseY
+      t.velY = newMouseY - oldMouseY
+      t.changeY = newMouseY - t.startY
+      posY = t.changeY + t.posY
+      t.mouseY = newMouseY
+
+      speedX = 10*t.velX
+      flickX = t.changeX + speedX
+
+      speedY = 10*t.velY
+      flickY = t.changeY + speedY
+
+      scrollElement = null
+      if $(target).hasClass('scrollable')
+        scrollElement = $(target)
+      else
+        scrollElement = $(target).parentsUntil('body', '.scrollable')[0]
+
+      positionYTop = $(scrollElement).scrollTop()
+      isScrolledToTop = if positionYTop is 0 then true else false
+
+      innerHeight = $(scrollElement).innerHeight()
+      contentHeight = scrollElement.scrollHeight
+
+      isScrolledToBottom = if positionYTop + innerHeight >= contentHeight then true else false
+
+      # console.log scrollElement, positionYTop, isScrolledToTop, innerHeight, contentHeight, isScrolledToBottom
+
+      if Math.abs(flickY*1.66) > Math.abs(flickX)
+        # scrolling
+        t.mightBeScrolling = false
+        t.scrolling = true
+
+        # catch scrolling if its at the bounds
+        if (flickY > 0 and isScrolledToTop) or (flickY < 0 and isScrolledToBottom)
+          # just swipe
+          t.mightBeScrolling = false
+          t.scrolling = false
+          t.toppedOutScroll = true
+          e.preventDefault()
+          # t.Swiper.drag(posX)
+          return false
+        else
+          return true
+      else
+          if noSwipeCSS
+            return true
+
+          # swipe
+          t.mightBeScrolling = false
+          t.scrolling = false
+          e.preventDefault()
+          unless noSwipeCSS
+            t.Swiper.drag(posX)
+          return false
+    else
+      # scrolling or not
+      if t.scrolling
+        return true
+      else
+        e.preventDefault()
+        unless noSwipeCSS
+          if t.toppedOutScroll
+            return false
+
+          # keep track of what element the pointer is over for touchend
+          x = e.originalEvent.touches[0].pageX - window.pageXOffset
+          y = e.originalEvent.touches[0].pageY - window.pageYOffset
+          target = document.elementFromPoint(x, y)
+          t.Swiper.element = target
+
+          newMouseX = e.originalEvent.touches[0].pageX
+          oldMouseX = t.mouseX
+          t.velX = newMouseX - oldMouseX
+          t.changeX = newMouseX - t.startX
+          posX = t.changeX + t.posX
+          t.mouseX = newMouseX
+
+          newMouseY = e.originalEvent.touches[0].pageY
+          oldMouseY = t.mouseY
+          t.velY = newMouseY - oldMouseY
+          t.changeY = newMouseY - t.startY
+          posY = t.changeY + t.posY
+          t.mouseY = newMouseY
+
+          t.Swiper.drag(posX)
+          return false
+
+
 
   'mouseup .pages': (e,t) ->
+    console.log "mouseup"
+    console.log e
     if t.mouseDown
       posX = t.changeX + t.posX
       momentum = Math.abs(10*t.velX)
       momentum = Math.min(momentum, t.width/2)
       momentum = momentum*sign(t.velX)
       distance = posX + momentum
-      if $(e.target).hasClass('swipe-control')
-        if Math.abs(distance) < 30
-          t.velX = 0
-          t.startX = 0
-          t.mouseX = 0
-          t.changeX = 0
-          t.mouseDown = false
-          return
+      if ($(e.target).hasClass('swipe-control') or $(e.target).parentsUntil('body', '.swipe-control').length) and e.target is t.Swiper.element and t.Swiper.shouldControl()
+        t.velX = 0
+        t.startX = 0
+        t.mouseX = 0
+        t.changeX = 0
+        t.mouseDown = false
+        return
 
       index = Math.round(distance / t.width)
       if index is -1
@@ -356,20 +480,22 @@ Template.swipe.events
 
   # mouseout and touchcancel
   'touchend .pages': (e,t) ->
+    console.log "touchend"
     if t.mouseDown
       posX = t.changeX + t.posX
       momentum = Math.abs(10*t.velX)
       momentum = Math.min(momentum, t.width/2)
       momentum = momentum*sign(t.velX)
       distance = posX + momentum
-      if $(e.target).hasClass('swipe-control') and e.target is t.Swiper.element
-        if Math.abs(distance) < 30
-          t.velX = 0
-          t.startX = 0
-          t.mouseX = 0
-          t.changeX = 0
-          t.mouseDown = false
-          return
+      # console.log ($(e.target).hasClass('swipe-control') or $(e.target).parentsUntil('body', '.swipe-control').length), e.target, t.Swiper.element, t.Swiper.shouldControl()
+      if ($(e.target).hasClass('swipe-control') or $(e.target).parentsUntil('body', '.swipe-control').length) and e.target is t.Swiper.element and t.Swiper.shouldControl()
+        console.log "here"
+        t.velX = 0
+        t.startX = 0
+        t.mouseX = 0
+        t.changeX = 0
+        t.mouseDown = false
+        return true
 
       index = Math.round(distance / t.width)
       if index is -1
