@@ -5,9 +5,8 @@ between pages. Checkout [this repo for some examples](https://github.com/ccorcos
 
 ## To Do
 
-- Document setPageHard
-- fix swiping inside a swipe-control
-- mobile vertical scrolling
+- mouseup when touching a swipe-control?
+
 
 ## Getting Started
 
@@ -45,7 +44,7 @@ pages.
 Template.main.rendered = ->
 
   # initial page
-  Swiper.setPage('page1')
+  Swiper.setPageHard('page1')
 
   # page control
   Tracker.autorun ->
@@ -65,6 +64,8 @@ Template.main.rendered = ->
       Swiper.leftRight('page4', null)
 ```
 
+`setPageHard` sets the current page without any animation.
+
 To prevent a swipe from starting on a certain element, simply add a `no-swipe`
 class to that element.
 
@@ -73,9 +74,11 @@ to use the `swipeControl` function. This takes care of making sure that you
 touch up inside the element you intent to click.
 
 ```
-swipeControl Swiper, 'page1', '.next', (e,t) ->
+Swiper.swipeControl 'page1', '.next', (e,t) ->
   Swiper.moveRight()
 ```
+
+Lastly, if you want to scroll, use the `scrollable` class.
 
 
 ## Known Issues
