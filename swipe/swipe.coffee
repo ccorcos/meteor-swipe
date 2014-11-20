@@ -246,8 +246,9 @@ Template.swipe.events
 
 
   'touchstart .pages': (e,t) ->
-    e.stopPropagation()
-    e.preventDefault()
+    # stops mousedown and up but ruins scroll
+    # e.stopPropagation()
+    # e.preventDefault()
 
     t.toppedOutScroll = false
 
@@ -384,6 +385,7 @@ Template.swipe.events
     else
       # scrolling or not
       if t.scrolling
+        console.log "scrolling"
         return true
       else
         e.preventDefault()
