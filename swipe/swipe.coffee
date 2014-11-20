@@ -233,7 +233,6 @@ Template.swipe.rendered = ->
 
 Template.swipe.events
   'mousedown .pages': (e,t) ->
-
     noSwipeCSS = $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
 
     unless noSwipeCSS
@@ -247,8 +246,10 @@ Template.swipe.events
 
 
   'touchstart .pages': (e,t) ->
-    t.toppedOutScroll = false
+    e.stopPropagation()
+    e.preventDefault()
 
+    t.toppedOutScroll = false
 
     noSwipeCSS = $(e.target).hasClass('no-swipe') or $(e.target).parentsUntil('body', '.no-swipe').length
     scrollableCSS = $(e.target).hasClass('scrollable') or $(e.target).parentsUntil('body', '.scrollable').length
@@ -416,8 +417,7 @@ Template.swipe.events
 
 
   'mouseup .pages': (e,t) ->
-    console.log "mouseup"
-    console.log e
+
     if t.mouseDown
       posX = t.changeX + t.posX
       momentum = Math.abs(10*t.velX)
@@ -480,7 +480,6 @@ Template.swipe.events
 
   # mouseout and touchcancel
   'touchend .pages': (e,t) ->
-    console.log "touchend"
     if t.mouseDown
       posX = t.changeX + t.posX
       momentum = Math.abs(10*t.velX)
@@ -489,7 +488,6 @@ Template.swipe.events
       distance = posX + momentum
       # console.log ($(e.target).hasClass('swipe-control') or $(e.target).parentsUntil('body', '.swipe-control').length), e.target, t.Swiper.element, t.Swiper.shouldControl()
       if ($(e.target).hasClass('swipe-control') or $(e.target).parentsUntil('body', '.swipe-control').length) and e.target is t.Swiper.element and t.Swiper.shouldControl()
-        console.log "here"
         t.velX = 0
         t.startX = 0
         t.mouseX = 0
