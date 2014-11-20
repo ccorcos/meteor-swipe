@@ -182,6 +182,14 @@ class Swipe
   #     if e.currentTarget is Swiper.element
   #       Swiper.moveRight()
 
+  shouldControl: ->
+    posX = @t.changeX + @t.posX
+    momentum = Math.abs(10*@t.velX)
+    momentum = Math.min(momentum, @t.width/2)
+    momentum = momentum*sign(@t.velX)
+    distance = posX + momentum
+    return Math.abs(distance) <= 20
+
   swipeControl: (template, selector, handler) ->
     Swiper = @
     mouseup = 'mouseup ' + selector
@@ -189,9 +197,10 @@ class Swipe
     eventMap = {}
 
     eventMap[mouseup] = (e,t) ->
-      handler.bind(@)(e,t)
+      if Swiper.shouldControl()
+        handler.bind(@)(e,t)
     eventMap[touchend] = (e,t) ->
-      if e.currentTarget is Swiper.element
+      if e.currentTarget is Swiper.element and Swiper.shouldControl()
         handler.bind(@)(e,t)
 
     t = Template[template]
@@ -284,31 +293,34 @@ Template.swipe.events
     return false
 
   'mouseup .pages': (e,t) ->
-    if $(e.target).hasClass('swipe-control')
+    if t.mouseDown
+      posX = t.changeX + t.posX
+      momentum = Math.abs(10*t.velX)
+      momentum = Math.min(momentum, t.width/2)
+      momentum = momentum*sign(t.velX)
+      distance = posX + momentum
+      if $(e.target).hasClass('swipe-control')
+        if Math.abs(distance) < 30
+          t.velX = 0
+          t.startX = 0
+          t.mouseX = 0
+          t.changeX = 0
+          t.mouseDown = false
+          return
+
+      index = Math.round(distance / t.width)
+      if index is -1
+        t.Swiper.moveRight()
+      else if index is 1
+        t.Swiper.moveLeft()
+      else
+        t.Swiper.animateBack()
+
       t.velX = 0
       t.startX = 0
       t.mouseX = 0
       t.changeX = 0
       t.mouseDown = false
-    else
-      if t.mouseDown
-        posX = t.changeX + t.posX
-        momentum = Math.abs(10*t.velX)
-        momentum = Math.min(momentum, t.width/2)
-        momentum = momentum*sign(t.velX)
-        index = Math.round((posX + momentum) / t.width)
-        if index is -1
-          t.Swiper.moveRight()
-        else if index is 1
-          t.Swiper.moveLeft()
-        else
-          t.Swiper.animateBack()
-
-        t.velX = 0
-        t.startX = 0
-        t.mouseX = 0
-        t.changeX = 0
-        t.mouseDown = false
 
   'mouseout .pages': (e,t) ->
     if t.mouseDown
@@ -344,30 +356,35 @@ Template.swipe.events
 
   # mouseout and touchcancel
   'touchend .pages': (e,t) ->
-    if $(e.target).hasClass('swipe-control') and e.target is t.Swiper.element
+    if t.mouseDown
+      posX = t.changeX + t.posX
+      momentum = Math.abs(10*t.velX)
+      momentum = Math.min(momentum, t.width/2)
+      momentum = momentum*sign(t.velX)
+      distance = posX + momentum
+      if $(e.target).hasClass('swipe-control') and e.target is t.Swiper.element
+        if Math.abs(distance) < 30
+          t.velX = 0
+          t.startX = 0
+          t.mouseX = 0
+          t.changeX = 0
+          t.mouseDown = false
+          return
+
+      index = Math.round(distance / t.width)
+      if index is -1
+        t.Swiper.moveRight()
+      else if index is 1
+        t.Swiper.moveLeft()
+      else
+        t.Swiper.animateBack()
+
       t.velX = 0
       t.startX = 0
       t.mouseX = 0
       t.changeX = 0
       t.mouseDown = false
-    else
-      if t.mouseDown
-        posX = t.changeX + t.posX
-        momentum = Math.abs(10*t.velX)
-        momentum = Math.min(momentum, t.width/2)
-        momentum = momentum*sign(t.velX)
-        index = Math.round((posX + momentum) / t.width)
-        if index is -1
-          t.Swiper.moveRight()
-        else if index is 1
-          t.Swiper.moveLeft()
-        else
-          t.Swiper.animateBack()
-        t.velX = 0
-        t.startX = 0
-        t.mouseX = 0
-        t.changeX = 0
-        t.mouseDown = false
+
 
 
 

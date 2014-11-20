@@ -3,6 +3,11 @@
 This package comes with all the bells and whistles for creating an app with swiping
 between pages. Checkout [this repo for some examples](https://github.com/ccorcos/meteor-swipe-examples).
 
+## To Do
+
+- Document setPageHard
+- fix swiping inside a swipe-control
+- mobile vertical scrolling
 
 ## Getting Started
 
