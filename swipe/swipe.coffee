@@ -1,6 +1,7 @@
 
 eventPrint = (msg) ->
-  console.log msg
+  if false
+    console.log msg
 
 class Swipe
   constructor: (@templates, arrowKeys=true) ->
@@ -419,10 +420,10 @@ Template.swipe.events
       else
         scrollElement = $(target).parentsUntil('body', '.scrollable')[0]
 
-      positionYTop = $(scrollElement).scrollTop()
+      positionYTop = scrollElement.scrollTop
       isScrolledToTop = if positionYTop is 0 then true else false
 
-      innerHeight = $(scrollElement).innerHeight()
+      innerHeight = scrollElement.innerHeight
       contentHeight = scrollElement.scrollHeight
 
       isScrolledToBottom = if positionYTop + innerHeight >= contentHeight then true else false
@@ -494,7 +495,7 @@ Template.swipe.events
         t.mouseY = newMouseY
 
         t.Swiper.drag(posX)
-        return false
+      return false
 
   'mouseup .pages': (e,t) ->
 
@@ -614,6 +615,7 @@ Template.swipe.events
       t.mouseY = 0
       t.changeY = 0
       t.touchDown = false
+    return true
 
 
 sign = (x) ->
