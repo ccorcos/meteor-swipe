@@ -5,9 +5,28 @@ between pages. Checkout [this repo for some examples](https://github.com/ccorcos
 
 ## To Do
 
+- refactor
 - mouseup when touching a swipe-control?
 - iron router page control not entirely working
 - animated transitions snap on the first one
+
+## Tests
+
+- 3 pages circular swipe
+  - make sure you done see the pages wrap around behind
+- drop page after transition
+  - make sure the swipe finishes and you dont see the background or snap
+- create page an transition on trigger
+  - cannot swipe, but the page is creates on swipe
+- next page trigger button
+  - and touch/control buttons in general
+  - touch doesn't register when swiping
+- no swiping from element
+- vertical scrolling
+- iron router integration
+  - landing page
+  - change url without triggering actions
+
 
 ## Getting Started
 
@@ -45,7 +64,7 @@ pages.
 Template.main.rendered = ->
 
   # initial page
-  Swiper.setPageHard('page1')
+  Swiper.setInitialPage('page1')
 
   # page control
   Tracker.autorun ->
@@ -65,7 +84,7 @@ Template.main.rendered = ->
       Swiper.leftRight('page4', null)
 ```
 
-`setPageHard` sets the current page without any animation.
+`setInitialPage` sets the current page without any animation.
 
 To prevent a swipe from starting on a certain element, simply add a `no-swipe`
 class to that element.
