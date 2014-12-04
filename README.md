@@ -5,27 +5,32 @@ between pages. Checkout [this repo for some examples](https://github.com/ccorcos
 
 ## To Do
 
-- refactor
-- mouseup when touching a swipe-control?
+- add a special transition to page5 and a special transition out.
+  - wait on stack overflow for the answer to the reason theres no animating going on.
 - iron router page control not entirely working
 - animated transitions snap on the first one
 
-## Tests
 
-- 3 pages circular swipe
-  - make sure you done see the pages wrap around behind
-- drop page after transition
-  - make sure the swipe finishes and you dont see the background or snap
-- create page an transition on trigger
-  - cannot swipe, but the page is creates on swipe
-- next page trigger button
-  - and touch/control buttons in general
-  - touch doesn't register when swiping
-- no swiping from element
-- vertical scrolling
-- iron router integration
-  - landing page
-  - change url without triggering actions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Getting Started

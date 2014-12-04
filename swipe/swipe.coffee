@@ -3,6 +3,10 @@ eventPrint = (msg) ->
   if false
     console.log msg
 
+debugPrint = (msg) ->
+  if false
+    console.log msg
+
 class Swipe
   constructor: (@templates, arrowKeys=true) ->
     # @templates is a list of template name strings that will be used by
@@ -85,6 +89,16 @@ class Swipe
   displayCenter: (name) ->
     $(@t.find('.page.'+name)).css('display', 'block').css 'transform',
       'translate3d(0px,0,0)'
+
+  transitionRight: (name) ->
+    @hidePage @previousPage
+    @setRight name
+    @moveRight()
+
+  transitionLeft: (name) ->
+    @hidePage @previousPage
+    @setLeft name
+    @moveLeft()
 
   moveLeft: ->
     if @left
@@ -180,6 +194,7 @@ class Swipe
       'translate3d(0px,0,0)'
 
   leftRight: (left, right) ->
+    debugPrint 'leftRight'
     center = @getPage()
     @setLeft left
     @setRight right
@@ -208,7 +223,7 @@ class Swipe
 
   # These are effectively the same:
 
-  # swipeControl Swiper, 'page1', '.next', (e,t) ->
+  # click Swiper, 'page1', '.next', (e,t) ->
   #   Swiper.moveRight()
 
   # Template.page1.events
@@ -220,7 +235,7 @@ class Swipe
   #     if e.currentTarget is Swiper.element
   #       Swiper.moveRight()
 
-  swipeControl: (template, selector, handler) ->
+  click: (template, selector, handler) ->
     Swiper = @
     mouseup = 'mouseup ' + selector
     touchend = 'touchend ' + selector
