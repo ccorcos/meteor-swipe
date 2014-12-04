@@ -1,7 +1,7 @@
 Package.describe({
   name: 'ccorcos:swipe',
   summary: 'A package for creating apps that swipe between pages',
-  version: '1.0.11',
+  version: '1.1.0',
   git: 'https://github.com/ccorcos/meteor-swipe.git'
 });
 
