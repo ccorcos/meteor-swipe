@@ -93,12 +93,16 @@ class Swipe
   transitionRight: (name) ->
     @hidePage @previousPage
     @setRight name
-    @moveRight()
+    self = @
+    delay 0, ->
+      self.moveRight()
 
   transitionLeft: (name) ->
     @hidePage @previousPage
     @setLeft name
-    @moveLeft()
+    self = @
+    delay 0, ->
+      self.moveLeft()
 
   moveLeft: ->
     if @left
