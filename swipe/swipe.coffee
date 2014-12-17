@@ -4,7 +4,7 @@ print = (msg) ->
     console.log msg
 
 eventPrint = (msg) ->
-  if true
+  if false
     console.log msg
 
 debugPrint = (msg) ->
