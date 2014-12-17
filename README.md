@@ -1,15 +1,6 @@
 # Meteor Swipe
 
-This package comes with all the bells and whistles for creating an app with swiping
-between pages. Checkout [this repo for some examples](https://github.com/ccorcos/meteor-swipe-examples).
-
-## To Do
-
-
-- iron router page control not entirely working
-- animated transitions snap on the first one
-
-
+This package comes with all the bells and whistles for creating an app with swiping between pages. Checkout [this repo for some examples](https://github.com/ccorcos/meteor-swipe-examples).
 
 ## Getting Started
 
