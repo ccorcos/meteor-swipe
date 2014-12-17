@@ -1,6 +1,6 @@
 
 eventPrint = (msg) ->
-  if false
+  if true
     console.log msg
 
 debugPrint = (msg) ->
@@ -308,7 +308,7 @@ Template.swipe.events
   'mousedown .pages': (e,t) ->
     # if we're the user has already touched down, we want to ignore mouse events
     if t.touchDown
-      return
+      return true
 
     eventPrint "mousedown"
     noSwipeCSS = targetInClass 'no-swipe', e.target
@@ -326,6 +326,8 @@ Template.swipe.events
       t.mouseY = clickY # current position of the swipe
       t.mouseDown = true # click swipe has begun
       t.touchDown = false
+
+      return true
 
   'touchstart .pages': (e,t) ->
     eventPrint "touchstart"
@@ -369,6 +371,8 @@ Template.swipe.events
       t.mouseDown = false
       t.touchDown = true
 
+    return true
+
   'mousemove .pages': (e,t) ->
     # if the mouse is pressed, we need to keep track of the swipe.
     # note that you cannot scroll by clicking the mouse!
@@ -390,18 +394,10 @@ Template.swipe.events
 
       t.Swiper.drag(posX)
 
+    return true
+
   'touchmove .pages': (e,t) ->
     eventPrint "touchmove"
-
-    # if you mightBeScrolling
-    #   compare with dx and dy to set if scrolling
-    #   if not scrolling
-    #     prevent default and swipe
-    # else
-    #   if not scrolling
-    #     unless noSwipe
-    #     prevent default and swipe
-
     noSwipeCSS = targetInClass 'no-swipe', e.target
 
     # If we're not sure if the user is scrolling or not, then we need to check to
