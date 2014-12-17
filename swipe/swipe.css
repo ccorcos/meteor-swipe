@@ -10,10 +10,12 @@ body {
 .pages {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 /*   pointer-events: all;
  */}
 
 .page {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   position: absolute;

@@ -1,4 +1,8 @@
 
+print = (msg) ->
+  if false
+    console.log msg
+
 eventPrint = (msg) ->
   if true
     console.log msg
@@ -65,6 +69,12 @@ class Swipe
   animateAll: ->
     $(@t.findAll('.page')).addClass('animate')
 
+  unanimate: (name) ->
+    $(@t.find('.page.'+name)).removeClass('animate')
+
+  animate: (name) ->
+    $(@t.find('.page.'+name)).addClass('animate')
+
   animateRight: (name) ->
     $(@t.find('.page.'+name)).addClass('animate').css 'transform',
       'translate3d('+@t.width+'px,0,0)'
@@ -91,14 +101,20 @@ class Swipe
       'translate3d(0px,0,0)'
 
   transitionRight: (name) ->
+    print "transitionRight"
     @hidePage @previousPage
+    @clearAnimate()
+    # @hideAllBut @getPage(), name
     @setRight name
     self = @
     delay 0, ->
       self.moveRight()
 
   transitionLeft: (name) ->
+    print "transitionLeft"
     @hidePage @previousPage
+    @clearAnimate()
+    # @hideAllBut @getPage(), name
     @setLeft name
     self = @
     delay 0, ->
@@ -106,6 +122,9 @@ class Swipe
 
   moveLeft: ->
     if @left
+      print "moveLeft"
+      @hideAllBut @getPage(), @left
+      @unanimate @right
       # only animate the center and the left towards the right
       @animateRight @getPage()
       @animateCenter @left
@@ -113,6 +132,9 @@ class Swipe
 
   moveRight: ->
     if @right
+      print "moveRight"
+      @hideAllBut @getPage(), @right
+      @unanimate @left
       # only animate the center and the left towards the right
       @animateLeft @getPage()
       @animateCenter @right
@@ -125,8 +147,12 @@ class Swipe
     @previousPage = @getPage()
     @state.set 'page', name
 
+  hideAllBut: (names...) ->
+    for n in _.partial(_.without, @templates).apply(this, names)
+      @hidePage n
+
   hidePage: (name) ->
-    $(@t.find('.page.'+name)).css 'display', 'none'
+    $(@t.find('.page.'+name)).css('display', 'none')
 
   setInitialPage: (name) ->
     # hide everything when placing the initial page
@@ -184,7 +210,9 @@ class Swipe
 
   animateBack: () ->
     # Animate all pages back into place
-    @animateAll()
+    @animate @left
+    @animate @right
+    @animate @getPage()
 
     if @left
       $(@t.find('.page.'+@left)).css 'transform',
@@ -212,10 +240,9 @@ class Swipe
       @hidePage name
 
 
-
-
   shouldControl: ->
     # don't register a click if the page is scrolled or being flicked.
+    if @t.scrolling then return false
     speedX = 10*@t.velX
     flickX = @t.changeX + speedX
     speedY = 10*@t.velY
@@ -246,11 +273,13 @@ class Swipe
     eventMap = {}
 
     eventMap[mouseup] = (e,t) ->
-      if Swiper.shouldControl()
+      if Swiper.shouldControl() and not Swiper.t.touchDown
+        eventPrint "mouseup control"
         handler.bind(@)(e,t)
 
     eventMap[touchend] = (e,t) ->
       if e.currentTarget is Swiper.element and Swiper.shouldControl()
+        eventPrint "touchend control"
         e.stopPropagation()
         handler.bind(@)(e,t)
 
@@ -295,10 +324,6 @@ Template.swipe.rendered = ->
   @scrollableCSS = false
   @mightBeScrolling = false
   @scrolling = false
-  @willOverscroll = false
-
-  # prevent overscroll when necessary. This happens when the user drags down
-  # when the page is at the top, or vice versa at the bottom
 
 
 targetInClass = (name, target) ->
@@ -314,7 +339,6 @@ Template.swipe.events
     noSwipeCSS = targetInClass 'no-swipe', e.target
 
     unless noSwipeCSS
-      t.willOverscroll = false
       # remove stop all animations in this swiper
       t.Swiper.clearAnimate()
       clickX = e.pageX
@@ -331,7 +355,6 @@ Template.swipe.events
 
   'touchstart .pages': (e,t) ->
     eventPrint "touchstart"
-    t.willOverscroll = false
 
     noSwipeCSS = targetInClass 'no-swipe', e.target
     scrollableCSS = targetInClass 'scrollable', e.target
@@ -429,20 +452,6 @@ Template.swipe.events
       speedY = 10*t.velY
       flickY = t.changeY + speedY
 
-      scrollElement = null
-      if $(target).hasClass('scrollable')
-        scrollElement = $(target)
-      else
-        scrollElement = $(target).parentsUntil('body', '.scrollable')[0]
-
-      positionYTop = scrollElement.scrollTop
-      isScrolledToTop = if positionYTop is 0 then true else false
-
-      innerHeight = scrollElement.innerHeight
-      contentHeight = scrollElement.scrollHeight
-
-      isScrolledToBottom = if positionYTop + innerHeight >= contentHeight then true else false
-
       # compute the relative angles of up-down or left-right
       if Math.abs(flickY*1.66) > Math.abs(flickX)
         # we've determined that the user is definitely scrolling
@@ -450,42 +459,28 @@ Template.swipe.events
         # touchmove, just compute the scroll position.
         t.mightBeScrolling = false
         t.scrolling = true
-
-        # catch scrolling if the user is scrolling beyond the bounds and
-        # prevent the default safari functionality that drags the webpage, yuck.
-        if (flickY > 0 and isScrolledToTop) or (flickY < 0 and isScrolledToBottom)
-          t.mightBeScrolling = false
-          t.scrolling = false
-          t.willOverscroll = true
-          e.preventDefault()
-          return false
-        else
-          # continue with default scroll functionality.
-          return true
+        return true
       else
         # if the user is swiping, not scrolling, we can set the appropriate values
         t.mightBeScrolling = false
         t.scrolling = false
-        # prevent the default scrolling functionality
-        e.preventDefault()
-        # DELETE COMMENT
-        # if noSwipeCSS
-        #   return true
-        unless noSwipeCSS
+        if noSwipeCSS
+          # if you
+          return true
+        else
+          # prevent the default scrolling functionality
+          e.preventDefault()
           t.Swiper.drag(posX)
-        return false
+          return false
     else if t.scrolling
       # if we know the user is scrolling, we can just let the default
       # functionality handle it.
       return true
     else
-      # if the user is swiping, then we need to prevent the default functionality
-      # of scrolling.
-      e.preventDefault()
       unless noSwipeCSS
-        if t.willOverscroll
-          # if the user tried to overscroll, prevent the entire gesture.
-          return false
+        # if the user is swiping, then we need to prevent the default functionality
+        # of scrolling.
+        e.preventDefault()
 
         # keep track of what element the pointer is over for touchend
         x = e.originalEvent.touches[0].pageX - window.pageXOffset
@@ -553,41 +548,6 @@ Template.swipe.events
       t.mouseY = 0
       t.changeY = 0
       t.mouseDown = false
-
-  # 'mouseout .pages': (e,t) ->
-  #   # this is tricky. mouseout of the entire webpage will fuck up everything.
-  #   # I'm not sure how to deal with this.
-  #
-  #   # if t.mouseDown
-  #   #   parentToChild = e.fromElement is e.toElement?.parentNode
-  #   #   childToParent = _.contains(e.toElement?.childNodes, e.fromElement)
-  #   #   if not (parentToChild or childToParent)
-  #   #     posX = t.changeX + t.posX
-  #   #     momentum = Math.abs(10*t.velX)
-  #   #     momentum = Math.min(momentum, t.width/2)
-  #   #     momentum = momentum*sign(t.velX)
-  #   #     index = Math.round((posX + momentum) / t.width)
-  #   #     if index is -1
-  #   #       t.Swiper.moveRight()
-  #   #     else if index is 1
-  #   #       t.Swiper.moveLeft()
-  #   #     else
-  #   #       t.Swiper.animateBack()
-  #   #
-  #   #     t.velX = 0
-  #   #     t.startX = 0
-  #   #     t.mouseX = 0
-  #   #     t.changeX = 0
-  #   #     t.mouseDown = false
-  #
-  #   # scrollOffPage = e.toElement is document.querySelector("html")
-  #   # if scrollOffPage
-  #   #   # Not handling this well
-  #   #   t.velX = 0
-  #   #   t.startX = 0
-  #   #   t.mouseX = 0
-  #   #   t.changeX = 0
-  #   #   t.mouseDown = false
 
   'touchend .pages': (e,t) ->
     if t.touchDown
