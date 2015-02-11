@@ -12,7 +12,7 @@ debugPrint = (msg) ->
     console.log msg
 
 class Swipe
-  constructor: (@templates, arrowKeys=true) ->
+  constructor: (@templates, @callback=null, arrowKeys=true) ->
     # @templates is a list of template name strings that will be used by
     # the Swiper
 
@@ -146,6 +146,7 @@ class Swipe
     # take cre of any animations or transitions.
     @previousPage = @getPage()
     @state.set 'page', name
+    @callback name if @callback
 
   hideAllBut: (names...) ->
     for n in _.partial(_.without, @templates).apply(this, names)
