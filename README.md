@@ -1,4 +1,4 @@
-# Meteor Swipe
+# Meteor Swipe [MAINTAINER WANTED]
 
 This package comes with all the bells and whistles for creating an app with swiping between pages. Checkout [this repo for some examples](https://github.com/ccorcos/meteor-swipe-examples).
 
